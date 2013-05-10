@@ -5,14 +5,12 @@
  */
 
 /*
-Plugin Name: Popdust Settings
-Plugin URI: http://popdust.com
+Plugin Name: Easy WordPress Settings
+Plugin URI: http://matgargano.com
 Author: Mat Gargano
 Version: 0.1
 Author URI: http://matgargano.com/
-Description: Easily extended class that allows you to add settings pages.
-
-
+Description: A way to create settings pages on the fly!
 
 ***************************************************************************************************
 ***************************************************************************************************
@@ -21,7 +19,7 @@ Description: Easily extended class that allows you to add settings pages.
 ***************************************************************************************************
 
 
-The magic happens in the easy_settings_page class, which contains a static function create which accepts an configuration argument (in the form of an associative array).
+The magic happens in the easy_wordpress_settings_page class, which contains a static method create which accepts an configuration argument (in the form of an associative array).
 
 The associative array is to have this structure:
 
@@ -40,7 +38,7 @@ $options['sections'] is to be an array or an array of arrays of sections for thi
 				title - the title of the information you are collecting
 				description (optional) - a description of this information you are collecting
 
-† fileupload will store the URL of the uploaded file. If you want to get the attachment ID, I have included a helper class that has a function (hat tip to Pippin's Plugins (http://pippinsplugins.com/retrieve-attachment-id-from-image-url/) for the basis for this method), to use it: $attachment_id = easy_settings_helper::get_image_id($url)
+† fileupload will store the URL of the uploaded file. If you want to get the attachment ID, I have included a helper class that has a method (hat tip to Pippin's Plugins (http://pippinsplugins.com/retrieve-attachment-id-from-image-url/) for the basis for this method), to use it: $attachment_id = easy_wordpress_settings_helper::get_attachment_id($url)
 †† pulldown should have an additional key=>value with a key of 'choices' and its value is the array of choices, see below for how to construct this
 
 
@@ -108,7 +106,7 @@ add_action('admin_menu',
 					)
 				),
 			);
-		easy_settings_page::create($options);
+		easy_wordpress_settings_page::create($options);
 	}, 1);
 
 /* DO NOT TOUCH BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING! */
