@@ -24,7 +24,7 @@ Each array underneath sections should include:
 - title - the title of the information you are collecting  
 - description (optional) - a description of this information you are collecting  
   
-† fileupload will store the URL of the uploaded file. If you want to get the attachment ID, I have included a helper class that has a method (hat tip to Pippin's Plugins (http://pippinsplugins.com/retrieve-attachment-id-from-image-url/) for the basis for this method), to use it: $attachment_id = easy_wordpress_settings_helper::get_attachment_id($url)  
+† fileupload will store the URL of the uploaded file. If you want to get the attachment ID, I have included a helper class that has a method (hat tip to Pippin's Plugins (http://pippinsplugins.com/retrieve-attachment-id-from-image-url/) for the basis for this method), to use it: `$attachment_id = easy_wordpress_settings_helper::get_attachment_id($url)`  
 †† pulldown should have an additional key=>value with a key of 'choices' and its value is the array of choices, see below for how to construct this  
   
   
@@ -32,6 +32,6 @@ Retrieving The Settings
 --------
 
 These settings will be stored in key=>value pairs in a wp_option with the id the same as the slug, so in the example below, to get the site's name, it would be:  
-    $option = get_option("about_the_site");  
-    $site_name = $option['name'];  
+    `$option = get_option("about_the_site");  `
+    `$site_name = $option['name'];`
 
