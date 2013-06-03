@@ -110,7 +110,23 @@ class easy_wordpress_settings_page {
 								    echo $html;  
 								},
 						$args['slug'], $args['slug'], array($main_id, $choices));
-					break;					
+					break;
+					case "richtext":
+						$richtext_settings = array(
+								'textarea_name' => $main_id,
+								'editor_class' => $class
+						     );
+						add_settings_field($main_id, $title, 
+								function ($section) use ($options, $args, $richtext_settings) {
+									$id = $section[0];
+									$content = $options[$id];
+									ob_start();
+										wp_editor($content, $args['slug'] . '[' . $id . ']', $crichtext_settings);
+									$html = ob_get_clean();
+								    echo $html;  
+								},
+						$args['slug'], $args['slug'], array($main_id));		
+					break;										
 				}
 			register_setting($args['slug'], $args['slug']);	
 			}

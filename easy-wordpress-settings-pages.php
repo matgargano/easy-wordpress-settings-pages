@@ -33,7 +33,7 @@ $options['sections'] is to be an array or an array of arrays of sections for thi
 		section_name -  subheading for the settings
 		items - an array of arrays of information to collect
 			Each array underneath item should include:
-				type - currently you can choose from text, textarea, checkbox, fileupload †, pulldown ††
+				type - currently you can choose from text, textarea, checkbox, richtext, fileupload †, pulldown ††
 				id - a unique id for this information
 				title - the title of the information you are collecting
 				description (optional) - a description of this information you are collecting
@@ -80,6 +80,12 @@ add_action('admin_menu',
 							'title' => 'Biography',
 							'desc' => 'Tell us a bit about yourself.'
 							),
+						array(
+							'type' => 'richtext',
+							'id' => 'rich',
+							'title' => 'Biography with HTML',
+							'desc' => 'Tell us a bit about yourself... with HTML!'
+							),							
 						array(
 							'type' => 'checkbox',
 							'id' => 'recommend',
