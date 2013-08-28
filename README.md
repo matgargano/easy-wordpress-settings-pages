@@ -19,7 +19,7 @@ Each array underneath sections should include:
 - section_name - subheading for the settings  
 - items - an array of arrays of information to collect  
 - Each array underneath item should include:  
-- type - currently you can choose from text, textarea, checkbox, fileupload †, pulldown ††  
+- type - currently you can choose from text, textarea, checkbox, fileupload†, pulldown ††
 - id - a unique id for this information  
 - title - the title of the information you are collecting  
 - description (optional) - a description of this information you are collecting  
@@ -27,7 +27,58 @@ Each array underneath sections should include:
 † fileupload will store the URL of the uploaded file. If you want to get the attachment ID, I have included a helper class that has a method (hat tip to Pippin's Plugins (http://pippinsplugins.com/retrieve-attachment-id-from-image-url/) for the basis for this method), to use it:  
 `$attachment_id = easy_wordpress_settings_helper::get_attachment_id($url)`  
 †† pulldown should have an additional key=>value with a key of 'choices' and its value is the array of choices, see provided code sample in this repo for how to construct this  
-  
+
+
+Example of how to use this plugin (note that this will not work if you are using an older PHP version (<=5.3). If you are using an ancient version move the anonymous function outside of the add_action and reference it in the add_action:
+
+```
+add_action('admin_menu', 
+	function() {
+		$options['parent'] = "settings";   
+		$options['menu_text'] = "About the Site";
+		$options['page_title'] = "About the Site";
+		$options['capability'] = "manage_options";
+		$options['slug'] = "about_the_site";
+		$options['sections'] = 
+			array(
+				array(
+					"section_name"=>"Information about this site",
+					"items" => array(
+						array(
+							'type' => 'text',
+							'id' => 'name',
+							'title' => 'What\'s Your Site\'s Name?',
+							'desc' => 'What do you go by?'
+							),
+						array(
+							'type' => 'textarea',
+							'id' => 'description',
+							'title' => 'Biography',
+							'desc' => 'Tell us a bit about yourself.'
+							),
+						array(
+							'type' => 'checkbox',
+							'id' => 'recommend',
+							'title' => 'Store user information?',
+							'desc' => 'Check if you want to store information about the users'
+			 				),
+						array(
+							'type' => 'pulldown',
+							'id' => 'whos_on_first',
+							'title'=>'Who\'s on First?',
+							'description'=>'Come on Costello!',
+							'choices'=>array(
+								'1'=>'Who',
+								'2'=>'What',
+								'3'=>'I Don\'t Know',
+							)
+						),
+					)
+				),
+			);
+		easy_wordpress_settings_page::create($options);
+	}, 1);
+```
   
 Retrieving The Settings  
 --------

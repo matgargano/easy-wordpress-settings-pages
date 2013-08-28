@@ -1,7 +1,7 @@
 <?php
 /**
  * @package Easy WordPress Settings pages
- * @version 0.1
+ * @version 0.2
  */
 
 /*
@@ -33,14 +33,14 @@ $options['sections'] is to be an array or an array of arrays of sections for thi
 		section_name -  subheading for the settings
 		items - an array of arrays of information to collect
 			Each array underneath item should include:
-				type - currently you can choose from text, textarea, checkbox, richtext, fileupload †, pulldown ††
+				type - currently you can choose from text, textarea, checkbox, richtext, fileupload†, pulldown ††
 				id - a unique id for this information
 				title - the title of the information you are collecting
 				description (optional) - a description of this information you are collecting
 
-† fileupload will store the URL of the uploaded file. If you want to get the attachment ID, I have included a helper class that has a method (hat tip to Pippin's Plugins (http://pippinsplugins.com/retrieve-attachment-id-from-image-url/) for the basis for this method), to use it: $attachment_id = easy_wordpress_settings_helper::get_attachment_id($url)
-†† pulldown should have an additional key=>value with a key of 'choices' and its value is the array of choices, see below for how to construct this
-
+† fileupload will store the URL of the uploaded file. If you want to get the attachment ID, I have included a helper class that has a method (hat tip to Pippin's Plugins (http://pippinsplugins.com/retrieve-attachment-id-from-image-url/) for the basis for this method), to use it:  
+`$attachment_id = easy_wordpress_settings_helper::get_attachment_id($url)`  
+†† pulldown should have an additional key=>value with a key of 'choices' and its value is the array of choices, see provided code sample in this repo for how to construct this  
 
 ***************************************************************************************************
 ***************************************************************************************************
@@ -48,72 +48,19 @@ $options['sections'] is to be an array or an array of arrays of sections for thi
 ***************************************************************************************************
 ***************************************************************************************************
 
-These settings will be stored in key=>value pairs in a wp_option with the id the same as the slug, so in the example below, to get the site's name, it would be:
+These settings will be stored in key=>value pairs in a wp_option with the id the same as the slug, so in the example, to get the site's name, it would be:
 	$option = get_option("about_the_site");
 	$site_name = $option['name'];
 
+***************************************************************************************************
+***************************************************************************************************
+****************************************   Example Usage   ****************************************
+***************************************************************************************************
+***************************************************************************************************
 
+See the readme for an example of how to use this!
 
 */
-
-add_action('admin_menu', 
-	function() {
-		$options['parent'] = "settings";   
-		$options['menu_text'] = "About the Site";
-		$options['page_title'] = "About the Site";
-		$options['capability'] = "manage_options";
-		$options['slug'] = "about_the_site";
-		$options['sections'] = 
-			array(
-				array(
-					"section_name"=>"Information about this site",
-					"items" => array(
-						array(
-							'type' => 'text',
-							'id' => 'name',
-							'title' => 'What\'s Your Site\'s Name?',
-							'desc' => 'What do you go by?'
-							),
-						array(
-							'type' => 'textarea',
-							'id' => 'description',
-							'title' => 'Biography',
-							'desc' => 'Tell us a bit about yourself.'
-							),
-						array(
-							'type' => 'richtext',
-							'id' => 'rich',
-							'title' => 'Biography with HTML',
-							'desc' => 'Tell us a bit about yourself... with HTML!'
-							),							
-						array(
-							'type' => 'checkbox',
-							'id' => 'recommend',
-							'title' => 'Store user information?',
-							'desc' => 'Check if you want to store information about the users'
-			 				),
-						array(
-							'type' => 'fileupload',
-							'id' => 'image',
-							'title' => 'Site Image',
-							'desc' => 'Upload an image for the site', 
-							),
-						array(
-							'type' => 'pulldown',
-							'id' => 'whos_on_first',
-							'title'=>'Who\'s on First?',
-							'description'=>'Come on Costello!',
-							'choices'=>array(
-								'1'=>'Who',
-								'2'=>'What',
-								'3'=>'I Don\'t Know',
-							)
-						),
-					)
-				),
-			);
-		easy_wordpress_settings_page::create($options);
-	}, 1);
 
 /* DO NOT TOUCH BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING! */
 foreach (glob(plugin_dir_path(__FILE__) . "lib/*.php") as $filename) include $filename;

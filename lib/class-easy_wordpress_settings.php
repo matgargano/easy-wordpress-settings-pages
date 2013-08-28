@@ -1,7 +1,7 @@
 <?php
 /**
  * @package Easy WordPress Settings pages
- * @version 0.1
+ * @version 0.2
  */
 
 /**
@@ -21,124 +21,147 @@ class easy_wordpress_settings_page {
      *    @access public
      */
 
-	    public static function create($args=null){
-		if (!$args) return false;
-		add_action("admin_enqueue_scripts", function(){
-			wp_register_script( 'easy_settings_script', plugin_dir_url(__FILE__) . 'js/settings.js', array('jquery', 'thickbox', 'media-upload'), null);  
-		    wp_enqueue_style('thickbox');
-		    wp_enqueue_script("easy_settings_script");
+	    public static function create( $args=null ){
+		if ( ! $args ) return false;
+		add_action( 'admin_enqueue_scripts', function(){
+			wp_register_script( 'easy_settings_script', easy_wordpress_settings_page::plugins_url('js/settings.js', __FILE__) , array( 'jquery', 'thickbox', 'media-upload' ), null );  
+		    wp_enqueue_style( 'thickbox' );
+		    wp_enqueue_script( 'easy_settings_script' );
 		});
 
 
-		foreach($args['sections'] as $section){
+		foreach( $args['sections'] as $section ){
 			$section_name = $section['section_name'];
 			
 		    if( false == get_option( $args['slug'] ) ) {     
 		        add_option( $args['slug'] );  
 		    } 
-		    $options = get_option($args['slug']);
-			add_settings_section($args['slug'], $section_name, null, $args['slug']);
-			foreach($section['items'] as $item) {
-				$type = $item['type'];
-				$main_id  = $item['id'];
-				$description = $item['desc'];
-				$title = $item['title'];
-				$choices = $item['choices'];
-				if ($description) $title = $title . '<br /><small class="italic">' . $description . '</small>';
-				switch($type){
-					case "checkbox":
-						add_settings_field($main_id, $title, 
-								function ($section) use ($options, $args) {
+		    $options = get_option( $args['slug'] );
+			add_settings_section( $args['slug'], $section_name, null, $args['slug'] );
+			foreach( $section['items'] as $item ) {
+				$type = array_key_exists( 'type', $item ) ? $item['type'] : null;
+				$main_id  = array_key_exists( 'id', $item ) ? $item['id'] : null;
+				$description = array_key_exists( 'desc', $item) ? $item['desc'] : null;
+				$title = array_key_exists( 'title', $item ) ? $item['title'] : null;
+				$choices = array_key_exists('choices', $item) ? $item['choices'] : null;
+				if ( $description ) $title = $title . '<br /><small class="italic">' . $description . '</small>';
+				switch( $type ){
+					case 'checkbox':
+						add_settings_field( $main_id, $title, 
+								function ( $section ) use ( $options, $args ) {
 									$id = $section[0];
-									$html = '<input type="checkbox" id="' . $args['slug'] . '[' . $id . ']" name="' . $args['slug'] . '[' . $id . ']" value="1" ' . checked(1, $options[$id], false) . '/>';  
+									if ( is_array( $options ) && array_key_exists( $id, $options ) ) $value = $options[$id];
+									else $value = '';									
+									$html = '<input type="checkbox" id="' . $args['slug'] . '[' . $id . ']" name="' . $args['slug'] . '[' . $id . ']" value="1" ' . checked(1, $value, false) . '/>';  
 									echo $html;  
 								},
-						$args['slug'], $args['slug'], array($main_id));
+						$args['slug'], $args['slug'], array( $main_id ) );
 					break;
-					case "text":
-						add_settings_field($main_id, $title, 
-								function ($section) use ($options, $args) {
+					case 'text':
+						add_settings_field( $main_id, $title, 
+								function ( $section ) use ( $options, $args ) {
 									$id = $section[0];
-									unset($html);
-									$html .= '<input type="text" id="' . $args['slug'] . '[' . $id . ']" name="' . $args['slug'] . '[' . $id . ']" value="' . $options[$id] . '" />';  
+									if ( ! is_array( $options ) ) $value = '';
+									else $value = $options[$id];									
+									$html = '<input type="text" id="' . $args['slug'] . '[' . $id . ']" name="' . $args['slug'] . '[' . $id . ']" value="' . $value . '" />';  
 								    echo $html;  
 								},
-						$args['slug'], $args['slug'], array($main_id));
+						$args['slug'], $args['slug'], array( $main_id ) );
 					break;
 					case 'fileupload':  
-						add_settings_field($main_id, $title, 
-								function ($section) use ($options, $args) {
+						add_settings_field( $main_id, $title, 
+								function ( $section ) use ( $options, $args ) {
 									$id = $section[0];
-									unset($html);
-									$html .= '<div class="upload-image">';
-									$html .= "<input class='upload-file' type='text' id='$id' name='" . $args['slug'] . "[$id]' value='$options[$id]' />";  
+									$html = '<div class="upload-image">';
+									$value = '';
+									if ( ! is_array( $options ) && array_key_exists( $id, $options) ) $value = $options[$id];
+									$html .= "<input class='upload-file' type='text' id='$id' name='" . $args['slug'] . "[$id]' value='" . $value . "' />";  
 									$html .= '<input class="upload-image-button" type="button" value="Upload" />';
 									$html .= '</div>';
 								    echo $html;  
 								},
-						$args['slug'], $args['slug'], array($main_id));
-
-
-					    
+						$args['slug'], $args['slug'], array( $main_id ) );
 					break;
-					case "textarea":
-						add_settings_field($main_id, $title, 
-								function ($section) use ($options, $args) {
+					case 'textarea':
+						add_settings_field( $main_id, $title, 
+								function ( $section ) use ( $options, $args ) {
 									$id = $section[0];
-									unset($html);
-									$html .= '<textarea class="large-text" cols="50" rows="10" type="text" id="' . $args['slug'] . '[' . $id . ']" name="' . $args['slug'] . '[' . $id . ']">' . $options[$id] . '</textarea>';  
+									if ( ! is_array( $options ) ) $value = '';
+									else $value = $options[$id];
+									$html = '<textarea class="large-text" cols="50" rows="10" type="text" id="' . $args['slug'] . '[' . $id . ']" name="' . $args['slug'] . '[' . $id . ']">' . $value . '</textarea>';  
 								    echo $html;  
 								},
-						$args['slug'], $args['slug'], array($main_id));
+						$args['slug'], $args['slug'], array( $main_id ) );
 					break;
-					case "pulldown":
-						add_settings_field($main_id, $title, 
-								function ($section) use ($options, $args) {
+					case 'pulldown':
+						add_settings_field( $main_id, $title, 
+								function ( $section ) use ( $options, $args ) {
 									$id = $section[0];
 									$choices = $section[1];
 									$value = $options[$id];
-									unset($html);
 									$html = '<select id="' . $args['slug'] . '[' . $id . ']" name="' . $args['slug'] . '[' . $id . ']">';
 									$html .= '<option value=""> - Select - </option>';
-									foreach($choices as $key=>$val){
+									foreach( $choices as $key=>$val ){
 										$selected = '';
-										if ($value== $key) $selected = ' selected="selected" ';
+										if ( $value== $key ) $selected = ' selected="selected" ';
 										$html .= '<option value="' . $key . '"' . $selected . '>'.$val.'</option>';
 									}
 									$html .= '</select>';
 									
 								    echo $html;  
 								},
-						$args['slug'], $args['slug'], array($main_id, $choices));
+						$args['slug'], $args['slug'], array( $main_id, $choices ) );
 					break;
 					case "richtext":
-						$richtext_settings = array(
-								'textarea_name' => $main_id,
-								'editor_class' => $class
-						     );
-						add_settings_field($main_id, $title, 
-								function ($section) use ($options, $args, $richtext_settings) {
-									$id = $section[0];
-									$content = $options[$id];
-									ob_start();
-										wp_editor($content, $args['slug'] . '[' . $id . ']', $crichtext_settings);
-									$html = ob_get_clean();
-								    echo $html;  
-								},
-						$args['slug'], $args['slug'], array($main_id));		
-					break;										
+						/**
+						  * @todo add rich text :)
+						  */
+
+						break;	
 				}
 			register_setting($args['slug'], $args['slug']);	
 			}
 			
 		}
-		easy_wordpress_submenu::create(array(
-			"parent" => $args['parent'],
-			"title"=>$args['page_title'],
-			"text"=>$args['menu_text'],
-			"capability"=>$args['capability'],
-			"slug"=>$args['slug']
+		easy_wordpress_submenu::create( array(
+			'parent' => $args['parent'],
+			'title'=>$args['page_title'],
+			'text'=>$args['menu_text'],
+			'capability'=>$args['capability'],
+			'slug'=>$args['slug']
 
-		));
+		) );
+	}
+
+	/**
+	 * @method plugins_url 
+	 * 
+	 * Allows this plugin to be included in a theme or ran from plugins
+	 * 
+	 * @param type $relative_path
+	 * @param type $plugin_path
+	 * @author prettyboymp
+	 * @return string
+	 */
+	public static function plugins_url( $relative_path, $plugin_path ) {
+		$template_dir = get_template_directory();
+
+		foreach (array( 'template_dir', 'plugin_path' ) as $var) {
+			$$var = str_replace( '\\', '/', $$var ); // sanitize for Win32 installs
+			$$var = preg_replace( '|/+|', '/', $$var );
+		}
+		if ( 0 === strpos( $plugin_path, $template_dir ) ) {
+			$url = get_template_directory_uri();
+			$folder = str_replace( $template_dir, '', dirname( $plugin_path ) );
+			if ( '.' != $folder ) {
+				$url .= '/' . ltrim( $folder, '/' );
+			}
+			if ( !empty( $relative_path ) && is_string( $relative_path ) && strpos( $relative_path, '..' ) === false ) {
+				$url .= '/' . ltrim( $relative_path, '/' );
+			}
+			return $url;
+		} else {
+			return plugins_url( $relative_path, $plugin_path );
+		}
 	}
 }
