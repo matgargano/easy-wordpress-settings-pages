@@ -24,9 +24,11 @@ class easy_wordpress_settings_page {
 	    public static function create( $args=null ){
 		if ( ! $args ) return false;
 		add_action( 'admin_enqueue_scripts', function(){
-			wp_register_script( 'easy_settings_script', easy_wordpress_settings_page::plugins_url('js/settings.js', __FILE__) , array( 'jquery', 'thickbox', 'media-upload' ), null );  
+			wp_register_script( 'easy_settings', easy_wordpress_settings_page::plugins_url('js/settings.js', __FILE__) , array( 'jquery', 'thickbox', 'media-upload' ), null );  
+			wp_register_script( 'easy_settings', easy_wordpress_settings_page::plugins_url('css/style.css', __FILE__) , null );  
 		    wp_enqueue_style( 'thickbox' );
-		    wp_enqueue_script( 'easy_settings_script' );
+		    wp_enqueue_script( 'easy_settings' );
+		    wp_enqueue_media();
 		});
 
 
@@ -62,7 +64,7 @@ class easy_wordpress_settings_page {
 								function ( $section ) use ( $options, $args ) {
 									$id = $section[0];
 									if ( ! is_array( $options ) ) $value = '';
-									else $value = $options[$id];									
+									else $value = esc_html( $options[$id] );
 									$html = '<input type="text" id="' . $args['slug'] . '[' . $id . ']" name="' . $args['slug'] . '[' . $id . ']" value="' . $value . '" />';  
 								    echo $html;  
 								},
@@ -72,11 +74,21 @@ class easy_wordpress_settings_page {
 						add_settings_field( $main_id, $title, 
 								function ( $section ) use ( $options, $args ) {
 									$id = $section[0];
-									$html = '<div class="upload-image">';
+									$html = '<div class="upload-file">';
 									$value = '';
-									if ( ! is_array( $options ) && array_key_exists( $id, $options) ) $value = $options[$id];
-									$html .= "<input class='upload-file' type='text' id='$id' name='" . $args['slug'] . "[$id]' value='" . $value . "' />";  
-									$html .= '<input class="upload-image-button" type="button" value="Upload" />';
+									$hidden = 'hidden';
+									$value = esc_html( $options[$id] );
+									$img = '<img />';
+									$object = json_decode( html_entity_decode( $value ) );
+									if ( gettype( $object ) === "object" ) {
+										$img = '<img src="' . $object->sizes->thumbnail->url . '" />';
+										$hidden = '';
+									}	
+									$remove = '<input class="clear-upload button ' . $hidden . '" type="button" value="Remove Upload" />';
+
+									$html .= $img . '<input class="file" type="hidden" id="' . $id . '" name="' . $args["slug"] . '[' . $id . ']" value="' . $value . '" />';  
+
+									$html .= '<br /><input class="upload-button button" type="button" value="Upload / Select" /> &nbsp;&nbsp;' . $remove;
 									$html .= '</div>';
 								    echo $html;  
 								},
@@ -87,7 +99,7 @@ class easy_wordpress_settings_page {
 								function ( $section ) use ( $options, $args ) {
 									$id = $section[0];
 									if ( ! is_array( $options ) ) $value = '';
-									else $value = $options[$id];
+									else $value = esc_html( $options[$id] );
 									$html = '<textarea class="large-text" cols="50" rows="10" type="text" id="' . $args['slug'] . '[' . $id . ']" name="' . $args['slug'] . '[' . $id . ']">' . $value . '</textarea>';  
 								    echo $html;  
 								},
