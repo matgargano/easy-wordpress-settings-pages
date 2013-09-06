@@ -20,18 +20,23 @@ class easy_wordpress_settings_page {
      *     
      *    @access public
      */
-
+public static function test($data){
+	ob_start();
+	var_dump($data);
+	$data2=ob_get_clean();
+	error_log("$data2", 3, '/tmp/bbb.log');
+	return $data;
+}
 	    public static function create( $args=null ){
 		if ( ! $args ) return false;
 		add_action( 'admin_enqueue_scripts', function(){
 			wp_register_script( 'easy_settings', easy_wordpress_settings_page::plugins_url('js/settings.js', __FILE__) , array( 'jquery', 'thickbox', 'media-upload' ), null );  
-			wp_register_script( 'easy_settings', easy_wordpress_settings_page::plugins_url('css/style.css', __FILE__) , null );  
-		    wp_enqueue_style( 'thickbox' );
+			wp_enqueue_style( 'thickbox' );
 		    wp_enqueue_script( 'easy_settings' );
 		    wp_enqueue_media();
 		});
 
-
+		
 		foreach( $args['sections'] as $section ){
 			$section_name = $section['section_name'];
 			
@@ -42,7 +47,7 @@ class easy_wordpress_settings_page {
 			add_settings_section( $args['slug'], $section_name, null, $args['slug'] );
 			foreach( $section['items'] as $item ) {
 				$type = array_key_exists( 'type', $item ) ? $item['type'] : null;
-				$main_id  = array_key_exists( 'id', $item ) ? $item['id'] : null;
+				$main_id  = array_key_exists( 'id', $item ) ? $type . "_" . $item['id'] : null;
 				$description = array_key_exists( 'desc', $item) ? $item['desc'] : null;
 				$title = array_key_exists( 'title', $item ) ? $item['title'] : null;
 				$choices = array_key_exists('choices', $item) ? $item['choices'] : null;
@@ -60,7 +65,7 @@ class easy_wordpress_settings_page {
 						$args['slug'], $args['slug'], array( $main_id ) );
 					break;
 					case 'text':
-						add_settings_field( $main_id, $title, 
+						add_settings_field( "first" . $main_id, "second" . $title, 
 								function ( $section ) use ( $options, $args ) {
 									$id = $section[0];
 									if ( ! is_array( $options ) ) $value = '';
@@ -77,7 +82,7 @@ class easy_wordpress_settings_page {
 									$html = '<div class="upload-file">';
 									$value = '';
 									$hidden = 'hidden';
-									$value = esc_html( $options[$id] );
+									if ( array_key_exists( $id, $options ) )$value = esc_html( $options[$id] );
 									$img = '<img />';
 									$object = json_decode( html_entity_decode( $value ) );
 									if ( gettype( $object ) === "object" ) {
@@ -108,6 +113,7 @@ class easy_wordpress_settings_page {
 					case 'pulldown':
 						add_settings_field( $main_id, $title, 
 								function ( $section ) use ( $options, $args ) {
+									
 									$id = $section[0];
 									$choices = $section[1];
 									$value = $options[$id];
@@ -131,7 +137,7 @@ class easy_wordpress_settings_page {
 
 						break;	
 				}
-			register_setting($args['slug'], $args['slug']);	
+			register_setting($args['slug'], $args['slug'], array(__CLASS__, "test"));	
 			}
 			
 		}
