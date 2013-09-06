@@ -20,11 +20,19 @@ class easy_wordpress_settings_page {
      *     
      *    @access public
      */
-public static function test($data){
+public static function sanitize($data){
+	foreach(array_keys($data) as $key) {
+		if ( substr($key, 0, 10) === "fileupload" ) {
+			$temp = json_decode( $data[$key] );
+			$data[$key . "_data"] = $data[$key];
+			$data[$key] = $temp->id;
+		}
+	}
 	ob_start();
 	var_dump($data);
-	$data2=ob_get_clean();
-	error_log("$data2", 3, '/tmp/bbb.log');
+	$data2 = ob_get_clean();
+	error_log($data2, 3, '/tmp/bbb.log');
+	
 	return $data;
 }
 	    public static function create( $args=null ){
@@ -44,6 +52,7 @@ public static function test($data){
 		        add_option( $args['slug'] );  
 		    } 
 		    $options = get_option( $args['slug'] );
+
 			add_settings_section( $args['slug'], $section_name, null, $args['slug'] );
 			foreach( $section['items'] as $item ) {
 				$type = array_key_exists( 'type', $item ) ? $item['type'] : null;
@@ -82,7 +91,7 @@ public static function test($data){
 									$html = '<div class="upload-file">';
 									$value = '';
 									$hidden = 'hidden';
-									if ( array_key_exists( $id, $options ) )$value = esc_html( $options[$id] );
+									if ( array_key_exists( $id, $options ) )$value = esc_html( $options[$id . '_data'] );
 									$img = '<img />';
 									$object = json_decode( html_entity_decode( $value ) );
 									if ( gettype( $object ) === "object" ) {
@@ -137,7 +146,7 @@ public static function test($data){
 
 						break;	
 				}
-			register_setting($args['slug'], $args['slug'], array(__CLASS__, "test"));	
+			register_setting($args['slug'], $args['slug'], array(__CLASS__, "sanitize"));	
 			}
 			
 		}
